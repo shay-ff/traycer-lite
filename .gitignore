@@ -48,6 +48,9 @@ next-env.d.ts
 *.swo
 *~
 
+# Project specification files
+.kiro/
+
 # OS generated files
 .DS_Store
 .DS_Store?
@@ -71,5 +74,3 @@ pids
 tmp/
 temp/
 
-# Kiro specs and settings (comment out if you want to commit specs)
-/.kiro

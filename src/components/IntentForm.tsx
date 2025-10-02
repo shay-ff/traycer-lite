@@ -130,6 +130,12 @@ export const IntentForm: React.FC<IntentFormProps> = ({
               id="intent"
               value={formData.intent}
               onChange={handleIntentChange}
+              onKeyDown={(e) => {
+                if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+                  e.preventDefault();
+                  handleSubmit(e);
+                }
+              }}
               placeholder="Describe what you want to build or modify. Be as specific as possible about the functionality, requirements, and expected behavior..."
               rows={4}
               className={`
@@ -161,6 +167,9 @@ export const IntentForm: React.FC<IntentFormProps> = ({
                   (minimum 10 characters)
                 </span>
               )}
+              <span className="ml-2 text-gray-400">
+                • Press Ctrl+Enter to submit
+              </span>
             </div>
           </div>
           

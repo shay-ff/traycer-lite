@@ -84,6 +84,17 @@ export const StepCard: React.FC<StepCardProps> = ({
     setIsEditingDescription(false);
   }, [step.description]);
 
+  // Handle global keyboard shortcuts for step actions
+  const handleCardKeyDown = useCallback((e: React.KeyboardEvent) => {
+    // Only handle if not editing and target is the card container
+    if (isEditingTitle || isEditingDescription || e.target !== e.currentTarget) return;
+    
+    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter' && !isExecuting && !isAccepted) {
+      e.preventDefault();
+      onExecute(step.id);
+    }
+  }, [isEditingTitle, isEditingDescription, isExecuting, isAccepted, onExecute, step.id]);
+
   // Handle keyboard events for editing
   const handleTitleKeyDown = useCallback((e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
@@ -95,7 +106,7 @@ export const StepCard: React.FC<StepCardProps> = ({
   }, [handleTitleSave, handleTitleCancel]);
 
   const handleDescriptionKeyDown = useCallback((e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && e.ctrlKey) {
+    if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
       e.preventDefault();
       handleDescriptionSave();
     } else if (e.key === 'Escape') {
@@ -153,14 +164,19 @@ export const StepCard: React.FC<StepCardProps> = ({
   }, [step.id, onRegenerateStep]);
 
   return (
-    <div className={`
-      bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-all duration-200
-      ${executionStatus === 'executing' ? 'border-blue-300 bg-blue-50' : ''}
-      ${executionStatus === 'completed' ? 'border-green-300 bg-green-50' : ''}
-      ${executionStatus === 'accepted' ? 'border-emerald-300 bg-emerald-50' : ''}
-      ${executionStatus === 'error' ? 'border-red-300 bg-red-50' : ''}
-      ${className}
-    `}>
+    <div 
+      className={`
+        bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200
+        focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500
+        ${isAccepted ? 'border-green-300 bg-green-50' : ''}
+        ${executionError ? 'border-red-300 bg-red-50' : ''}
+        ${className}
+      `}
+      tabIndex={0}
+      onKeyDown={handleCardKeyDown}
+      role="article"
+      aria-label={`Step: ${step.title}`}
+    >
       {/* Card Header */}
       <div className="p-4 border-b border-gray-100">
         <div className="flex items-start justify-between">
@@ -246,7 +262,7 @@ export const StepCard: React.FC<StepCardProps> = ({
                   : 'bg-blue-600 text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20'
                 }
               `}
-              title={isExecuting ? 'Step is running...' : 'Execute this step'}
+              title={isExecuting ? 'Step is running...' : 'Execute this step (Ctrl+Enter)'}
             >
               {isExecuting ? <ButtonLoader text="Running..." /> : 'Run Step'}
             </button>
