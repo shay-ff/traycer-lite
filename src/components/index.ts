@@ -11,3 +11,12 @@ export { DiffViewer } from './DiffViewer';
 
 // Export components
 export { ExportPanel } from './ExportPanel';
+
+// Error handling components
+export { ErrorBoundary, APIErrorBoundary } from './ErrorBoundary';
+
+// Feedback components
+export { ToastProvider, useToast, useToastHelpers } from './Toast';
+
+// Loading components
+export { LoadingIndicator, PageLoader, ButtonLoader, InlineLoader, ProgressIndicator } from './LoadingIndicator';

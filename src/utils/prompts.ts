@@ -25,15 +25,21 @@ export function generatePlanPrompt(context: PromptContext): string {
   const languageContext = language ? `\nProgramming Language: ${language}` : '';
   const fileContext = file ? `\nTarget File: ${file}` : '';
   
+  // Handle code context - only include if provided
+  const codeContextSection = codeContext && codeContext.trim() 
+    ? `## Code Context
+\`\`\`
+${codeContext}
+\`\`\``
+    : `## Code Context
+No existing code provided - starting from scratch.`;
+  
   return `You are a coding assistant that creates step-by-step implementation plans. Given code context and user intent, generate a detailed plan with discrete, actionable steps.
 
 ## Context
 ${languageContext}${fileContext}
 
-## Code Context
-\`\`\`
-${codeContext}
-\`\`\`
+${codeContextSection}
 
 ## User Intent
 ${intent}
@@ -64,6 +70,13 @@ Return your response as a JSON object with this exact structure:
   ]
 }
 
+IMPORTANT: For the output.type field, you MUST use only one of these exact values:
+- "instruction" - for steps that provide guidance or instructions
+- "patch" - for steps that modify existing code (most common)
+- "file_replace" - for steps that replace entire files
+
+Do not use any other values like "file", "console_output", etc. Use "patch" for most code changes.
+
 Generate 3-8 steps that cover the complete implementation. Each step should be implementable independently.`;
 }
 
@@ -77,16 +90,22 @@ export function generateStepExecutionPrompt(context: StepExecutionContext): stri
     ? `\nInput Files: ${inputFiles.join(', ')}` 
     : '';
   
+  // Handle code context - only include if provided
+  const codeContextSection = codeContext && codeContext.trim() 
+    ? `## Current Code Context
+\`\`\`
+${codeContext}
+\`\`\``
+    : `## Current Code Context
+No existing code provided - implementing from scratch.`;
+  
   return `You are a coding assistant that implements specific code changes. Given a step description and code context, generate the exact code changes needed.
 
 ## Step to Implement
 **Title:** ${stepTitle}
 **Description:** ${stepDescription}${inputFilesContext}
 
-## Current Code Context
-\`\`\`
-${codeContext}
-\`\`\`
+${codeContextSection}
 
 ## Instructions
 Implement the requested step by generating the exact code changes. Focus on:
@@ -141,15 +160,11 @@ export function sanitizeInput(input: string): string {
  * Validate prompt context before generation
  */
 export function validatePromptContext(context: PromptContext): void {
-  if (!context.codeContext?.trim()) {
-    throw new Error('Code context is required');
-  }
-  
   if (!context.intent?.trim()) {
     throw new Error('Intent is required');
   }
   
-  if (context.codeContext.length > 50000) {
+  if (context.codeContext && context.codeContext.length > 50000) {
     throw new Error('Code context is too large (max 50,000 characters)');
   }
   
@@ -170,11 +185,7 @@ export function validateStepExecutionContext(context: StepExecutionContext): voi
     throw new Error('Step description is required');
   }
   
-  if (!context.codeContext?.trim()) {
-    throw new Error('Code context is required');
-  }
-  
-  if (context.codeContext.length > 50000) {
+  if (context.codeContext && context.codeContext.length > 50000) {
     throw new Error('Code context is too large (max 50,000 characters)');
   }
 }

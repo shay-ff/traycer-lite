@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { ToastProvider } from "@/components/Toast";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -13,8 +15,11 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "code-planner",
-  description: "It plans your next step.",
+  title: "Coding Agent Planner - AI-Powered Implementation Planning",
+  description: "Transform your coding ideas into structured, executable plans. Generate step-by-step implementation guides with AI assistance and review code changes with interactive diffs.",
+  keywords: ["coding", "AI", "planning", "implementation", "development", "code generation"],
+  authors: [{ name: "Coding Agent Planner" }],
+  viewport: "width=device-width, initial-scale=1",
 };
 
 export default function RootLayout({
@@ -27,7 +32,11 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        {children}
+        <ErrorBoundary>
+          <ToastProvider>
+            {children}
+          </ToastProvider>
+        </ErrorBoundary>
       </body>
     </html>
   );

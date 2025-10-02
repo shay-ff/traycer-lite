@@ -3,6 +3,9 @@
 import React, { useState, useCallback } from 'react';
 import { Step, StepExecution } from '@/types';
 import { DiffViewer } from './DiffViewer';
+import { useToastHelpers } from './Toast';
+import { ButtonLoader, InlineLoader } from './LoadingIndicator';
+import { APIErrorBoundary } from './ErrorBoundary';
 
 interface StepCardProps {
   step: Step;
@@ -15,6 +18,7 @@ interface StepCardProps {
   executionResult?: StepExecution;
   isExecuting?: boolean;
   isAccepted?: boolean;
+  executionError?: string;
   className?: string;
 }
 
@@ -29,12 +33,14 @@ export const StepCard: React.FC<StepCardProps> = ({
   executionResult,
   isExecuting = false,
   isAccepted = false,
+  executionError,
   className = ""
 }) => {
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [isEditingDescription, setIsEditingDescription] = useState(false);
   const [editedTitle, setEditedTitle] = useState(step.title);
   const [editedDescription, setEditedDescription] = useState(step.description);
+  const { success: showSuccess, error: showError } = useToastHelpers();
 
   // Handle title editing
   const handleTitleEdit = useCallback(() => {
@@ -100,9 +106,14 @@ export const StepCard: React.FC<StepCardProps> = ({
   // Handle step execution
   const handleExecuteClick = useCallback(() => {
     if (!isExecuting) {
-      onExecute(step.id);
+      try {
+        onExecute(step.id);
+        showSuccess('Step execution started', `Running step: ${step.title}`);
+      } catch (err) {
+        showError('Failed to execute step', 'Please try again');
+      }
     }
-  }, [step.id, onExecute, isExecuting]);
+  }, [step.id, step.title, onExecute, isExecuting, showSuccess, showError]);
 
   // Handle step deletion
   const handleDeleteClick = useCallback(() => {
@@ -114,6 +125,7 @@ export const StepCard: React.FC<StepCardProps> = ({
   // Get execution status
   const getExecutionStatus = () => {
     if (isExecuting) return 'executing';
+    if (executionError) return 'error';
     if (isAccepted) return 'accepted';
     if (executionResult) return 'completed';
     return 'pending';
@@ -146,6 +158,7 @@ export const StepCard: React.FC<StepCardProps> = ({
       ${executionStatus === 'executing' ? 'border-blue-300 bg-blue-50' : ''}
       ${executionStatus === 'completed' ? 'border-green-300 bg-green-50' : ''}
       ${executionStatus === 'accepted' ? 'border-emerald-300 bg-emerald-50' : ''}
+      ${executionStatus === 'error' ? 'border-red-300 bg-red-50' : ''}
       ${className}
     `}>
       {/* Card Header */}
@@ -170,13 +183,7 @@ export const StepCard: React.FC<StepCardProps> = ({
               {/* Execution Status */}
               <div className="ml-auto flex items-center">
                 {executionStatus === 'executing' && (
-                  <div className="flex items-center text-blue-600">
-                    <svg className="animate-spin -ml-1 mr-2 h-4 w-4" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    <span className="text-sm">Running...</span>
-                  </div>
+                  <InlineLoader text="Running..." />
                 )}
                 {executionStatus === 'completed' && (
                   <div className="flex items-center text-green-600">
@@ -192,6 +199,14 @@ export const StepCard: React.FC<StepCardProps> = ({
                       <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                     </svg>
                     <span className="text-sm">Accepted</span>
+                  </div>
+                )}
+                {executionStatus === 'error' && (
+                  <div className="flex items-center text-red-600">
+                    <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                    </svg>
+                    <span className="text-sm">Error</span>
                   </div>
                 )}
               </div>
@@ -233,7 +248,7 @@ export const StepCard: React.FC<StepCardProps> = ({
               `}
               title={isExecuting ? 'Step is running...' : 'Execute this step'}
             >
-              {isExecuting ? 'Running...' : 'Run Step'}
+              {isExecuting ? <ButtonLoader text="Running..." /> : 'Run Step'}
             </button>
             
             <button
@@ -295,24 +310,48 @@ export const StepCard: React.FC<StepCardProps> = ({
           </div>
         )}
 
-        {/* Execution Result with DiffViewer */}
-        {executionResult && (
-          <div className="mt-4">
-            <div className="mb-3 p-3 bg-blue-50 border border-blue-200 rounded-md">
-              <h4 className="text-sm font-medium text-blue-800 mb-1">Execution Result:</h4>
-              <p className="text-sm text-blue-700">{executionResult.explanation}</p>
+        {/* Execution Error */}
+        {executionError && (
+          <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-md">
+            <div className="flex items-center mb-2">
+              <svg className="w-4 h-4 text-red-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+              </svg>
+              <h4 className="text-sm font-medium text-red-800">Execution Failed</h4>
             </div>
-            
-            <DiffViewer
-              diff={executionResult.suggested_patch.diff}
-              format={executionResult.suggested_patch.format}
-              language={step.output?.patch_format === 'unified_diff' ? 'diff' : undefined}
-              onAccept={handleAcceptPatch}
-              onCopy={handleCopyPatch}
-              onRegenerate={handleRegenerateStep}
-              className="border-0 shadow-none"
-            />
+            <p className="text-sm text-red-700">{executionError}</p>
+            <div className="mt-2">
+              <button
+                onClick={handleExecuteClick}
+                disabled={isExecuting}
+                className="text-sm font-medium text-red-600 hover:text-red-500 transition-colors duration-200"
+              >
+                Try Again
+              </button>
+            </div>
           </div>
+        )}
+
+        {/* Execution Result with DiffViewer */}
+        {executionResult && !executionError && (
+          <APIErrorBoundary onRetry={() => handleExecuteClick()}>
+            <div className="mt-4">
+              <div className="mb-3 p-3 bg-blue-50 border border-blue-200 rounded-md">
+                <h4 className="text-sm font-medium text-blue-800 mb-1">Execution Result:</h4>
+                <p className="text-sm text-blue-700">{executionResult.explanation}</p>
+              </div>
+              
+              <DiffViewer
+                diff={executionResult.suggested_patch.diff}
+                format={executionResult.suggested_patch.format}
+                language={step.output?.patch_format === 'unified_diff' ? 'diff' : undefined}
+                onAccept={handleAcceptPatch}
+                onCopy={handleCopyPatch}
+                onRegenerate={handleRegenerateStep}
+                className="border-0 shadow-none"
+              />
+            </div>
+          </APIErrorBoundary>
         )}
       </div>
 

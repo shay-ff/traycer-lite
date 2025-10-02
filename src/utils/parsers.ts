@@ -16,12 +16,16 @@ export class ParseError extends Error {
  */
 export function parsePlanResponse(response: string): Plan {
   try {
+    // Log the raw response for debugging
+    console.log("Raw LLM response:", response);
+    
     // Extract JSON from response (handle cases where LLM adds extra text)
     const jsonMatch = response.match(/\{[\s\S]*\}/);
     if (!jsonMatch) {
       throw new ParseError("No JSON object found in response", response);
     }
 
+    console.log("Extracted JSON:", jsonMatch[0]);
     const parsed = JSON.parse(jsonMatch[0]);
 
     // Validate required fields
@@ -179,12 +183,36 @@ function validateStep(step: unknown, index: number): Step {
     }
 
     const outputObj = stepObj.output as Record<string, unknown>;
+    console.log(`${stepPrefix} output object:`, outputObj);
+    
     const validOutputTypes = ["instruction", "patch", "file_replace"];
-    if (!outputObj.type || !validOutputTypes.includes(outputObj.type as string)) {
+    let outputType = outputObj.type as string;
+    
+    // Handle common variations and map them to valid types
+    if (outputType) {
+      const typeMapping: Record<string, string> = {
+        "file": "file_replace",
+        "code": "patch", 
+        "diff": "patch",
+        "console_output": "instruction",
+        "output": "instruction",
+        "guidance": "instruction"
+      };
+      
+      if (typeMapping[outputType]) {
+        console.log(`${stepPrefix} Mapping output type "${outputType}" to "${typeMapping[outputType]}"`);
+        outputType = typeMapping[outputType];
+        // Update the object to use the correct type
+        (outputObj as any).type = outputType;
+      }
+    }
+    
+    if (!outputType || !validOutputTypes.includes(outputType)) {
+      console.log(`${stepPrefix} Invalid output type received:`, outputObj.type);
       throw new ParseError(
         `${stepPrefix} Invalid output type. Must be one of: ${validOutputTypes.join(
           ", "
-        )}`
+        )}. Received: ${outputObj.type}`
       );
     }
   }

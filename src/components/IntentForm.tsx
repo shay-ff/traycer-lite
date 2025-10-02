@@ -2,6 +2,9 @@
 
 import React, { useState, useCallback } from 'react';
 import { CodeContextInput } from './CodeContextInput';
+import { useToastHelpers } from './Toast';
+import { ButtonLoader } from './LoadingIndicator';
+import { getErrorMessage } from '@/utils/api';
 
 interface IntentFormData {
   codeContext: string;
@@ -31,6 +34,7 @@ export const IntentForm: React.FC<IntentFormProps> = ({
   }>({});
   
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const { error: showError, success: showSuccess } = useToastHelpers();
   
   // Handle code context changes
   const handleCodeContextChange = useCallback((value: string) => {
@@ -77,9 +81,15 @@ export const IntentForm: React.FC<IntentFormProps> = ({
     setIsSubmitted(true);
     
     if (validateForm()) {
-      onSubmit(formData);
+      try {
+        onSubmit(formData);
+        showSuccess('Plan generation started', 'Your request is being processed...');
+      } catch (err) {
+        const errorMessage = getErrorMessage(err as Error);
+        showError('Failed to generate plan', errorMessage);
+      }
     }
-  }, [formData, validateForm, onSubmit]);
+  }, [formData, validateForm, onSubmit, showSuccess, showError]);
   
   // Handle reset
   const handleReset = useCallback(() => {
@@ -199,13 +209,7 @@ export const IntentForm: React.FC<IntentFormProps> = ({
               "
             >
               {loading ? (
-                <>
-                  <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
-                  Generating Plan...
-                </>
+                <ButtonLoader text="Generating Plan..." />
               ) : (
                 'Generate Plan'
               )}

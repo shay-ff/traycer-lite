@@ -4,12 +4,14 @@
 
 import { useState, useCallback, useRef } from 'react';
 import { Step, StepExecution } from '@/types';
-import { executeStep } from '@/utils/api';
+import { executeStep, getErrorMessage, isRetryableError } from '@/utils/api';
 
 export interface UseStepExecutionReturn {
   stepExecutions: Map<string, StepExecution>;
   executingSteps: Set<string>;
   acceptedSteps: Set<string>;
+  executionErrors: Map<string, string>;
+  retryAttempts: Map<string, number>;
   executeStepById: (stepId: string, step: Step, codeContext: string) => Promise<void>;
   acceptPatch: (stepId: string) => void;
   copyPatch: (stepId: string) => void;
@@ -19,12 +21,17 @@ export interface UseStepExecutionReturn {
   isExecuting: (stepId: string) => boolean;
   isAccepted: (stepId: string) => boolean;
   hasExecution: (stepId: string) => boolean;
+  hasError: (stepId: string) => boolean;
+  getError: (stepId: string) => string | undefined;
+  canRetry: (stepId: string) => boolean;
 }
 
 export function useStepExecution(): UseStepExecutionReturn {
   const [stepExecutions, setStepExecutions] = useState<Map<string, StepExecution>>(new Map());
   const [executingSteps, setExecutingSteps] = useState<Set<string>>(new Set());
   const [acceptedSteps, setAcceptedSteps] = useState<Set<string>>(new Set());
+  const [executionErrors, setExecutionErrors] = useState<Map<string, string>>(new Map());
+  const [retryAttempts, setRetryAttempts] = useState<Map<string, number>>(new Map());
   
   // Keep track of abort controllers for ongoing requests
   const abortControllersRef = useRef<Map<string, AbortController>>(new Map());
@@ -44,7 +51,7 @@ export function useStepExecution(): UseStepExecutionReturn {
     // Mark step as executing
     setExecutingSteps(prev => new Set([...prev, stepId]));
     
-    // Clear any previous execution result and acceptance
+    // Clear any previous execution result, acceptance, and errors
     setStepExecutions(prev => {
       const newMap = new Map(prev);
       newMap.delete(stepId);
@@ -57,16 +64,33 @@ export function useStepExecution(): UseStepExecutionReturn {
       return newSet;
     });
 
+    setExecutionErrors(prev => {
+      const newMap = new Map(prev);
+      newMap.delete(stepId);
+      return newMap;
+    });
+
     try {
-      const result = await executeStep(step, codeContext);
+      // Execute step with retry callback
+      const result = await executeStep(step, codeContext, (attempt, error) => {
+        console.log(`Step ${stepId} retry attempt ${attempt}:`, error.message);
+        
+        // Update retry attempts count
+        setRetryAttempts(prev => new Map([...prev, [stepId, attempt]]));
+      });
       
       // Check if request was aborted
       if (abortController.signal.aborted) {
         return;
       }
 
-      // Store execution result
+      // Store execution result and clear retry attempts
       setStepExecutions(prev => new Map([...prev, [stepId, result]]));
+      setRetryAttempts(prev => {
+        const newMap = new Map(prev);
+        newMap.delete(stepId);
+        return newMap;
+      });
       
     } catch (error) {
       // Check if request was aborted
@@ -76,8 +100,16 @@ export function useStepExecution(): UseStepExecutionReturn {
 
       console.error(`Failed to execute step ${stepId}:`, error);
       
-      // You might want to show an error notification here
-      // For now, we'll just log the error
+      // Store error message
+      const errorMessage = getErrorMessage(error as Error);
+      setExecutionErrors(prev => new Map([...prev, [stepId, errorMessage]]));
+      
+      // Clear retry attempts on final failure
+      setRetryAttempts(prev => {
+        const newMap = new Map(prev);
+        newMap.delete(stepId);
+        return newMap;
+      });
       
     } finally {
       // Remove from executing steps
@@ -135,6 +167,18 @@ export function useStepExecution(): UseStepExecutionReturn {
       newSet.delete(stepId);
       return newSet;
     });
+
+    setExecutionErrors(prev => {
+      const newMap = new Map(prev);
+      newMap.delete(stepId);
+      return newMap;
+    });
+
+    setRetryAttempts(prev => {
+      const newMap = new Map(prev);
+      newMap.delete(stepId);
+      return newMap;
+    });
   }, []);
 
   // Clear all execution results
@@ -146,17 +190,27 @@ export function useStepExecution(): UseStepExecutionReturn {
     setStepExecutions(new Map());
     setExecutingSteps(new Set());
     setAcceptedSteps(new Set());
+    setExecutionErrors(new Map());
+    setRetryAttempts(new Map());
   }, []);
 
   // Helper functions
   const isExecuting = useCallback((stepId: string) => executingSteps.has(stepId), [executingSteps]);
   const isAccepted = useCallback((stepId: string) => acceptedSteps.has(stepId), [acceptedSteps]);
   const hasExecution = useCallback((stepId: string) => stepExecutions.has(stepId), [stepExecutions]);
+  const hasError = useCallback((stepId: string) => executionErrors.has(stepId), [executionErrors]);
+  const getError = useCallback((stepId: string) => executionErrors.get(stepId), [executionErrors]);
+  const canRetry = useCallback((stepId: string) => {
+    const error = executionErrors.get(stepId);
+    return error ? isRetryableError(new Error(error)) : false;
+  }, [executionErrors]);
 
   return {
     stepExecutions,
     executingSteps,
     acceptedSteps,
+    executionErrors,
+    retryAttempts,
     executeStepById,
     acceptPatch,
     copyPatch,
@@ -166,5 +220,8 @@ export function useStepExecution(): UseStepExecutionReturn {
     isExecuting,
     isAccepted,
     hasExecution,
+    hasError,
+    getError,
+    canRetry,
   };
 }

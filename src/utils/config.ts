@@ -12,7 +12,7 @@ export function getGroqConfig(): GroqConfig {
 
   return {
     apiKey,
-    model: process.env.GROQ_MODEL || 'llama-3.1-70b-versatile',
+    model: process.env.GROQ_MODEL || 'llama-3.3-70b-versatile',
     maxTokens: parseInt(process.env.GROQ_MAX_TOKENS || '4096', 10),
     temperature: parseFloat(process.env.GROQ_TEMPERATURE || '0.1'),
   };
