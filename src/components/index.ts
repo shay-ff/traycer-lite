@@ -8,3 +8,6 @@ export { PlanEditor } from './PlanEditor';
 
 // Diff viewing components
 export { DiffViewer } from './DiffViewer';
+
+// Export components
+export { ExportPanel } from './ExportPanel';

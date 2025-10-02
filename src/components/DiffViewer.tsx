@@ -109,28 +109,20 @@ export const DiffViewer: React.FC<DiffViewerProps> = ({
 
   // Handle copy to clipboard
   const handleCopy = useCallback(async () => {
-    try {
-      await navigator.clipboard.writeText(diff);
-      setCopySuccess(true);
-      onCopy();
-      setTimeout(() => setCopySuccess(false), 2000);
-    } catch (err) {
-      console.error('Failed to copy to clipboard:', err);
-      // Fallback for older browsers
-      const textArea = document.createElement('textarea');
-      textArea.value = diff;
-      document.body.appendChild(textArea);
-      textArea.select();
-      try {
-        document.execCommand('copy');
+    const { copyPatch } = await import('../utils/clipboard');
+    
+    await copyPatch(
+      diff,
+      () => {
         setCopySuccess(true);
         onCopy();
         setTimeout(() => setCopySuccess(false), 2000);
-      } catch (fallbackErr) {
-        console.error('Fallback copy failed:', fallbackErr);
+      },
+      (error) => {
+        console.error('Failed to copy to clipboard:', error);
+        // Could show a toast notification here in the future
       }
-      document.body.removeChild(textArea);
-    }
+    );
   }, [diff, onCopy]);
 
   // Get line styling based on type

@@ -23,6 +23,7 @@ import { CSS } from '@dnd-kit/utilities';
 
 import { Plan, Step, StepExecution } from '@/types';
 import { StepCard } from './StepCard';
+import { ExportPanel } from './ExportPanel';
 // Import will be added after SortableStepCard is created
 // import { SortableStepCard } from './SortableStepCard';
 
@@ -329,6 +330,16 @@ export const PlanEditor: React.FC<PlanEditorProps> = ({
         </div>
       )}
 
+      {/* Export Panel */}
+      {acceptedSteps.size > 0 && (
+        <ExportPanel
+          plan={plan}
+          stepExecutions={stepExecutions}
+          acceptedSteps={acceptedSteps}
+          className="mt-6"
+        />
+      )}
+
       {/* Tips */}
       <div className="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
         <h4 className="text-sm font-medium text-blue-800 mb-2">💡 Plan Editing Tips:</h4>
@@ -337,6 +348,7 @@ export const PlanEditor: React.FC<PlanEditorProps> = ({
           <li>• Drag steps by their handles to reorder the execution sequence</li>
           <li>• Use "Run Next Step" to execute steps one by one for better control</li>
           <li>• Add new steps to extend your implementation plan</li>
+          <li>• Export accepted changes as patch files for easy application</li>
         </ul>
       </div>
     </div>
