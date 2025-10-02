@@ -72,4 +72,4 @@ tmp/
 temp/
 
 # Kiro specs and settings (comment out if you want to commit specs)
-# /.kiro
+/.kiro
