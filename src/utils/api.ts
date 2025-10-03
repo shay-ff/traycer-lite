@@ -194,7 +194,7 @@ async function withRetry<T>(
  * Parse API error response
  */
 async function parseErrorResponse(response: Response): Promise<APIError> {
-  let errorData: any = {};
+  let errorData: Record<string, unknown> = {};
 
   try {
     errorData = await response.json();
@@ -202,8 +202,7 @@ async function parseErrorResponse(response: Response): Promise<APIError> {
     // Ignore JSON parsing errors
   }
 
-  const message =
-    errorData.error || `HTTP ${response.status}: ${response.statusText}`;
+  const message = (errorData.error as string) || `HTTP ${response.status}: ${response.statusText}`;
 
   switch (response.status) {
     case 400:
@@ -225,7 +224,7 @@ async function parseErrorResponse(response: Response): Promise<APIError> {
     case 404:
       return new APIError("Resource not found.", 404, "NOT_FOUND_ERROR", false);
     case 429:
-      const retryAfter = parseInt(errorData.retryAfter || "60", 10);
+      const retryAfter = parseInt((errorData.retryAfter as string) || "60", 10);
       return new RateLimitError(message, retryAfter);
     case 500:
       return new APIError(message, 500, "SERVER_ERROR", true);

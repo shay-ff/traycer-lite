@@ -9,6 +9,7 @@ import {
   useSensor,
   useSensors,
   DragEndEvent,
+  DragStartEvent,
 } from '@dnd-kit/core';
 import {
   arrayMove,
@@ -24,8 +25,97 @@ import { CSS } from '@dnd-kit/utilities';
 import { Plan, Step, StepExecution } from '@/types';
 import { StepCard } from './StepCard';
 import { ExportPanel } from './ExportPanel';
-// Import will be added after SortableStepCard is created
-// import { SortableStepCard } from './SortableStepCard';
+
+// Separate component to avoid hooks violation
+const SortableStepItem: React.FC<{
+  step: Step;
+  index: number;
+  draggedStepId: string | null;
+  stepExecutions: Map<string, StepExecution>;
+  executingSteps: Set<string>;
+  acceptedSteps: Set<string>;
+  onEdit: (step: Step) => void;
+  onDelete: (stepId: string) => void;
+  onExecuteStep: (stepId: string) => void;
+  onAcceptPatch?: (stepId: string) => void;
+  onCopyPatch?: (stepId: string) => void;
+  onRegenerateStep?: (stepId: string) => void;
+}> = ({
+  step,
+  index,
+  draggedStepId,
+  stepExecutions,
+  executingSteps,
+  acceptedSteps,
+  onEdit,
+  onDelete,
+  onExecuteStep,
+  onAcceptPatch,
+  onCopyPatch,
+  onRegenerateStep,
+}) => {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging: isSortableDragging,
+  } = useSortable({ id: step.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isSortableDragging ? 0.5 : 1,
+  };
+
+  return (
+    <div
+      key={step.id}
+      ref={setNodeRef}
+      style={style}
+      className={`
+        relative
+        ${isSortableDragging ? 'z-50' : ''}
+        ${draggedStepId === step.id ? 'shadow-lg' : ''}
+      `}
+    >
+      {/* Step Number Badge */}
+      <div className="absolute -left-3 top-4 z-10">
+        <div className="w-6 h-6 bg-blue-600 text-white text-xs font-bold rounded-full flex items-center justify-center shadow-sm">
+          {index + 1}
+        </div>
+      </div>
+
+      {/* Drag Handle Overlay */}
+      <div
+        {...attributes}
+        {...listeners}
+        className="absolute right-4 bottom-2 z-10 p-2 cursor-grab active:cursor-grabbing hover:bg-gray-100 rounded transition-colors duration-200"
+        title="Drag to reorder"
+      >
+        <svg className="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+          <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
+        </svg>
+      </div>
+
+      {/* Step Card */}
+      <StepCard
+        step={step}
+        onEdit={onEdit}
+        onDelete={onDelete}
+        onExecute={onExecuteStep}
+        onAcceptPatch={onAcceptPatch}
+        onCopyPatch={onCopyPatch}
+        onRegenerateStep={onRegenerateStep}
+        executionResult={stepExecutions.get(step.id)}
+        isExecuting={executingSteps.has(step.id)}
+        isAccepted={acceptedSteps.has(step.id)}
+        className="ml-3"
+      />
+    </div>
+  );
+};
 
 interface PlanEditorProps {
   plan: Plan;
@@ -128,8 +218,8 @@ export const PlanEditor: React.FC<PlanEditorProps> = ({
   }, [plan, onPlanChange]);
 
   // Handle drag start
-  const handleDragStart = useCallback((event: any) => {
-    setDraggedStepId(event.active.id);
+  const handleDragStart = useCallback((event: DragStartEvent) => {
+    setDraggedStepId(String(event.active.id));
   }, []);
 
   // Get step IDs for sortable context
@@ -222,69 +312,23 @@ export const PlanEditor: React.FC<PlanEditorProps> = ({
         >
           <SortableContext items={stepIds} strategy={verticalListSortingStrategy}>
             <div className="space-y-4">
-              {plan.steps.map((step, index) => {
-                const {
-                  attributes,
-                  listeners,
-                  setNodeRef,
-                  transform,
-                  transition,
-                  isDragging: isSortableDragging,
-                } = useSortable({ id: step.id });
-
-                const style = {
-                  transform: CSS.Transform.toString(transform),
-                  transition,
-                  opacity: isSortableDragging ? 0.5 : 1,
-                };
-
-                return (
-                  <div
-                    key={step.id}
-                    ref={setNodeRef}
-                    style={style}
-                    className={`
-                      relative
-                      ${isSortableDragging ? 'z-50' : ''}
-                      ${draggedStepId === step.id ? 'shadow-lg' : ''}
-                    `}
-                  >
-                    {/* Step Number Badge */}
-                    <div className="absolute -left-3 top-4 z-10">
-                      <div className="w-6 h-6 bg-blue-600 text-white text-xs font-bold rounded-full flex items-center justify-center shadow-sm">
-                        {index + 1}
-                      </div>
-                    </div>
-
-                    {/* Drag Handle Overlay */}
-                    <div
-                      {...attributes}
-                      {...listeners}
-                      className="absolute right-4 bottom-2 z-10 p-2 cursor-grab active:cursor-grabbing hover:bg-gray-100 rounded transition-colors duration-200"
-                      title="Drag to reorder"
-                    >
-                      <svg className="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
-                      </svg>
-                    </div>
-
-                    {/* Step Card */}
-                    <StepCard
-                      step={step}
-                      onEdit={handleStepEdit}
-                      onDelete={handleStepDelete}
-                      onExecute={onExecuteStep}
-                      onAcceptPatch={onAcceptPatch}
-                      onCopyPatch={onCopyPatch}
-                      onRegenerateStep={onRegenerateStep}
-                      executionResult={stepExecutions.get(step.id)}
-                      isExecuting={executingSteps.has(step.id)}
-                      isAccepted={acceptedSteps.has(step.id)}
-                      className="ml-3"
-                    />
-                  </div>
-                );
-              })}
+              {plan.steps.map((step, index) => (
+                <SortableStepItem
+                  key={step.id}
+                  step={step}
+                  index={index}
+                  draggedStepId={draggedStepId}
+                  stepExecutions={stepExecutions}
+                  executingSteps={executingSteps}
+                  acceptedSteps={acceptedSteps}
+                  onEdit={handleStepEdit}
+                  onDelete={handleStepDelete}
+                  onExecuteStep={onExecuteStep}
+                  onAcceptPatch={onAcceptPatch}
+                  onCopyPatch={onCopyPatch}
+                  onRegenerateStep={onRegenerateStep}
+                />
+              ))}
             </div>
           </SortableContext>
         </DndContext>
@@ -346,7 +390,7 @@ export const PlanEditor: React.FC<PlanEditorProps> = ({
         <ul className="text-sm text-blue-700 space-y-1">
           <li>• Click on step titles or descriptions to edit them inline</li>
           <li>• Drag steps by their handles to reorder the execution sequence</li>
-          <li>• Use "Run Next Step" to execute steps one by one for better control</li>
+          <li>• Use &quot;Run Next Step&quot; to execute steps one by one for better control</li>
           <li>• Add new steps to extend your implementation plan</li>
           <li>• Export accepted changes as patch files for easy application</li>
         </ul>

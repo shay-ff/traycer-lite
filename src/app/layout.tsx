@@ -15,11 +15,16 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Coding Agent Planner - AI-Powered Implementation Planning",
+  title: "Traycer Lite - AI Coding Agent Planner",
   description: "Transform your coding ideas into structured, executable plans. Generate step-by-step implementation guides with AI assistance and review code changes with interactive diffs.",
   keywords: ["coding", "AI", "planning", "implementation", "development", "code generation"],
-  authors: [{ name: "Coding Agent Planner" }],
+  authors: [{ name: "Traycer Lite" }],
   viewport: "width=device-width, initial-scale=1",
+  icons: {
+    icon: '/favicon.ico',
+    shortcut: '/favicon.ico',
+    apple: '/favicon.ico',
+  },
 };
 
 export default function RootLayout({

@@ -203,7 +203,7 @@ function validateStep(step: unknown, index: number): Step {
         console.log(`${stepPrefix} Mapping output type "${outputType}" to "${typeMapping[outputType]}"`);
         outputType = typeMapping[outputType];
         // Update the object to use the correct type
-        (outputObj as any).type = outputType;
+        (outputObj as Record<string, unknown>).type = outputType;
       }
     }
     

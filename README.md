@@ -257,6 +257,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 **Built with ❤️ using Next.js 15, TypeScript, and AI**
 
-[Demo](https://your-demo-url.com) • [Documentation](./docs/) • [Issues](https://github.com/shay-ff/code-planner/issues) • [Discussions](https://github.com/shay-ff/code-planner/discussions)
+[Demo](https://your-demo-url.com) • [Documentation](./docs/)
 
 </div>

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useMemo } from 'react';
-import { Plan, Step, StepExecution } from '@/types';
+import { Plan, StepExecution } from '@/types';
 import { 
   exportAcceptedChanges, 
   generateCombinedPatch, 
@@ -138,7 +138,7 @@ export const ExportPanel: React.FC<ExportPanelProps> = ({
                   name="exportFormat"
                   value={format.value}
                   checked={exportFormat === format.value}
-                  onChange={(e) => setExportFormat(e.target.value as any)}
+                  onChange={(e) => setExportFormat(e.target.value as 'unified_diff' | 'git_patch' | 'combined')}
                   className="mt-1 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
                 />
                 <div className="flex-1">

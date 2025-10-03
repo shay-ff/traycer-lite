@@ -267,7 +267,7 @@ export default function Home() {
                     • Mention any constraints, preferences, or requirements
                   </li>
                   <li>
-                    • Include error messages or issues you're trying to solve
+                    • Include error messages or issues you&apos;re trying to solve
                   </li>
                 </ul>
               </div>

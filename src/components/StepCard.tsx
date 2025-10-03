@@ -120,7 +120,7 @@ export const StepCard: React.FC<StepCardProps> = ({
       try {
         onExecute(step.id);
         showSuccess('Step execution started', `Running step: ${step.title}`);
-      } catch (err) {
+      } catch (_err) {
         showError('Failed to execute step', 'Please try again');
       }
     }
