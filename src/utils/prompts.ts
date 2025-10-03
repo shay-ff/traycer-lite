@@ -124,6 +124,13 @@ Return your response as a JSON object with this exact structure:
   "explanation": "Clear explanation of what was changed and why"
 }
 
+CRITICAL JSON FORMATTING RULES:
+1. ALL strings must be properly escaped (use \\n for newlines, \\" for quotes)
+2. The "diff" field MUST escape all newlines as \\n
+3. All backslashes must be double-escaped (\\\\)
+4. Do NOT include any unescaped newlines or quotes in JSON strings
+5. Keep the JSON valid and parseable
+
 Generate a unified diff format patch that can be applied to the codebase.`;
 }
 

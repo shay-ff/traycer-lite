@@ -3,6 +3,12 @@
 ## Current Live Deployment
 🌐 **Live Demo**: [https://traycer-lite.vercel.app/](https://traycer-lite.vercel.app/)
 
+**Latest Features** ✨
+- Complete file reconstruction system with ready-to-use corrected files
+- Enhanced JSON parsing with robust error recovery for LLM responses
+- Dark mode support with proper contrast throughout the UI
+- Before/after file comparison views for transparency
+
 ## Pre-Deployment Checklist
 
 ### ✅ Code Quality

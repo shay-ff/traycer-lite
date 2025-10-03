@@ -127,6 +127,7 @@ interface PlanEditorProps {
   stepExecutions?: Map<string, StepExecution>;
   executingSteps?: Set<string>;
   acceptedSteps?: Set<string>;
+  codeContext?: string;
   className?: string;
 }
 
@@ -140,6 +141,7 @@ export const PlanEditor: React.FC<PlanEditorProps> = ({
   stepExecutions = new Map(),
   executingSteps = new Set(),
   acceptedSteps = new Set(),
+  codeContext = '',
   className = ""
 }) => {
   const [draggedStepId, setDraggedStepId] = useState<string | null>(null);
@@ -380,6 +382,7 @@ export const PlanEditor: React.FC<PlanEditorProps> = ({
           plan={plan}
           stepExecutions={stepExecutions}
           acceptedSteps={acceptedSteps}
+          codeContext={codeContext}
           className="mt-6"
         />
       )}

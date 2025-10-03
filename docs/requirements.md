@@ -79,6 +79,77 @@ This feature implements a web application that serves as an intelligent planning
 4. WHEN the interface is used on different screen sizes THEN the system SHALL maintain usability and readability
 5. WHEN performing drag-and-drop operations THEN the system SHALL provide visual feedback and smooth animations
 
+### Requirement 8
+
+**User Story:** As a developer, I want to get complete, ready-to-use corrected files after applying patches, so that I can immediately use the working code without manually piecing together changes.
+
+#### Acceptance Criteria
+
+1. WHEN I have accepted one or more step patches THEN the system SHALL reconstruct complete files by applying all patches to the original code context
+2. WHEN viewing the export panel THEN the system SHALL provide both "Ready Files" and "Patches" tabs for different export options
+3. WHEN I click on "Ready Files" THEN the system SHALL display a list of reconstructed files with change statistics
+4. WHEN I expand a file in the Ready Files panel THEN the system SHALL show the complete corrected content with syntax highlighting
+5. WHEN I click "Copy" on a ready file THEN the system SHALL copy the complete corrected file content to my clipboard
+6. WHEN I click "Download" on a ready file THEN the system SHALL download the corrected file with the original filename
+7. WHEN I have multiple files THEN the system SHALL provide "Copy All" and "Download All" options for bulk operations
+8. WHEN parsing code context THEN the system SHALL support multiple file formats (markdown code blocks, comment headers, plain text)
+9. WHEN applying patches THEN the system SHALL handle malformed diffs gracefully and continue processing other patches
+10. WHEN viewing ready files THEN the system SHALL display change statistics (lines added, removed, total modifications)
+
+#### Technical Requirements
+
+1. **File Context Parsing:**
+   - Support markdown code blocks with language hints: ```python
+   - Support comment-style file headers: // filename.js
+   - Support explicit file declarations: File: package.json
+   - Graceful fallback for single-file contexts
+
+2. **Patch Application:**
+   - Apply unified diff patches sequentially to original content
+   - Handle missing line numbers and context mismatches
+   - Maintain file integrity when patches fail partially
+
+3. **UI/UX Requirements:**
+   - Dark mode support with proper contrast for all text elements
+   - Expandable file cards with before/after comparison
+   - One-click copy and download functionality
+   - Progress indicators for file reconstruction
+
+4. **Error Handling:**
+   - Graceful degradation when patches cannot be applied
+   - Clear error messages for malformed code context
+   - Fallback to original content when reconstruction fails
+
+### Requirement 9
+
+**User Story:** As a developer, I want robust error recovery when LLM responses contain malformed JSON, so that the application remains functional even with unpredictable AI outputs.
+
+#### Acceptance Criteria
+
+1. WHEN the LLM returns JSON with unescaped newlines or quotes THEN the system SHALL attempt to fix common JSON formatting issues
+2. WHEN initial JSON parsing fails THEN the system SHALL try multiple recovery strategies before showing an error
+3. WHEN JSON contains embedded diff strings with special characters THEN the system SHALL properly escape them for valid JSON
+4. WHEN all parsing attempts fail THEN the system SHALL extract fields manually using regex patterns
+5. WHEN displaying parsing errors THEN the system SHALL show the original LLM response for debugging
+6. WHEN successful recovery occurs THEN the system SHALL continue normal operation without user intervention
+
+#### Technical Implementation
+
+1. **Multi-layered Parsing Strategy:**
+   - Primary: Direct JSON.parse() attempt
+   - Secondary: Fix malformed strings with proper escaping
+   - Tertiary: Manual field extraction for severely corrupted JSON
+
+2. **Enhanced Prompts:**
+   - Include explicit JSON formatting rules in LLM prompts
+   - Specify escaping requirements for diff strings
+   - Add examples of properly formatted responses
+
+3. **Validation and Recovery:**
+   - Validate all required fields after parsing
+   - Type checking for critical properties
+   - Graceful fallback for missing optional fields
+
 ### Requirement 7
 
 **User Story:** As a developer, I want to deploy the application to a production environment, so that I can share it with others and use it from anywhere.

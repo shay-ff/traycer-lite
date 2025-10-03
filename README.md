@@ -33,9 +33,16 @@ Traycer Lite is an intelligent web application that bridges the gap between conc
 - Accept, copy, or regenerate individual changes
 - Export combined patches for external application
 
+### 📁 **Complete File Reconstruction**
+- Generate ready-to-use corrected files from patches
+- Smart file parsing supports multiple file formats
+- One-click copy/download of complete working code
+- Before/after comparison view for transparency
+
 ### ⌨️ **Productivity Features**
 - Keyboard shortcuts for power users
 - Responsive design for all screen sizes
+- Dark mode support with proper contrast
 - Comprehensive error handling and recovery
 
 ## 🚀 Quick Start
@@ -98,6 +105,42 @@ Traycer Lite is an intelligent web application that bridges the gap between conc
 - **Accept changes**: Accept patches you're satisfied with
 - **Export patches**: Download combined changes as `.patch` files
 
+## 💡 How It Works
+
+### 1. **Input Your Code Context**
+Paste your existing code (single or multiple files) with optional filename headers:
+```python
+# DataProcessor.py
+class DataProcessor:
+    def load_data(file_path):  # Missing 'self' parameter
+        with open(file_path)   # Missing colon
+            return json.load(file)
+```
+
+### 2. **Describe Your Intent**
+Tell Traycer what you want to achieve:
+> "Fix syntax errors and add error handling to make this code production-ready"
+
+### 3. **Review the Generated Plan**
+Get a structured, step-by-step implementation plan:
+- ✅ Fix missing 'self' parameter in load_data method
+- ✅ Add missing colon after 'with open' statement  
+- ✅ Import required modules (json)
+- ✅ Add try-catch error handling
+- ✅ Add input validation
+
+### 4. **Execute and Review Changes**
+- Execute steps individually or in sequence
+- Review unified diffs with syntax highlighting
+- Accept, regenerate, or modify suggested changes
+- See before/after comparisons
+
+### 5. **Get Ready-to-Use Files**
+- Download complete, corrected files instantly
+- Copy working code to clipboard with one click
+- Export traditional patches for version control
+- View detailed change statistics
+
 ## 🏗️ Architecture
 
 ```
@@ -135,8 +178,10 @@ src/
 ├── components/             # React components
 │   ├── CodeContextInput.tsx
 │   ├── DiffViewer.tsx
+│   ├── ExportPanel.tsx    # Export with patches and ready files
 │   ├── IntentForm.tsx
 │   ├── PlanEditor.tsx
+│   ├── ReadyFilesPanel.tsx # Complete file reconstruction UI
 │   ├── StepCard.tsx
 │   └── ...
 ├── hooks/                  # Custom React hooks
@@ -144,7 +189,8 @@ src/
 └── utils/                  # Utility functions
     ├── api.ts             # API client functions
     ├── config.ts          # Environment configuration
-    ├── parsers.ts         # LLM response parsing
+    ├── fileReconstruction.ts # File parsing and patch application
+    ├── parsers.ts         # Enhanced LLM response parsing
     └── prompts.ts         # Prompt generation
 ```
 

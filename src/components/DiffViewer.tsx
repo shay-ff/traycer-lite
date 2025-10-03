@@ -217,7 +217,7 @@ export const DiffViewer: React.FC<DiffViewerProps> = ({
         <div className="flex items-center space-x-2">
           <button
             onClick={handleCopy}
-            className="inline-flex items-center px-3 py-1.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-colors duration-200"
+            className="inline-flex items-center px-3 py-1.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-colors duration-200 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700"
             title="Copy to clipboard"
           >
             {copySuccess ? (
@@ -240,7 +240,7 @@ export const DiffViewer: React.FC<DiffViewerProps> = ({
           <button
             onClick={handleRegenerate}
             disabled={isRegenerating}
-            className="inline-flex items-center px-3 py-1.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="inline-flex items-center px-3 py-1.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700"
             title="Regenerate this step"
           >
             {isRegenerating ? (
@@ -257,7 +257,7 @@ export const DiffViewer: React.FC<DiffViewerProps> = ({
 
           <button
             onClick={handleAccept}
-            className="inline-flex items-center px-4 py-1.5 text-sm font-medium text-white bg-green-600 border border-transparent rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500/20 transition-colors duration-200"
+            className="inline-flex items-center px-4 py-1.5 text-sm font-medium text-white bg-green-600 border border-transparent rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500/20 transition-colors duration-200 dark:bg-green-500 dark:hover:bg-green-600"
             title="Accept these changes"
           >
             <svg className="w-4 h-4 mr-1.5" fill="currentColor" viewBox="0 0 20 20">

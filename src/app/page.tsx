@@ -312,6 +312,7 @@ export default function Home() {
             stepExecutions={stepExecutions}
             executingSteps={executingSteps}
             acceptedSteps={acceptedSteps}
+            codeContext={codeContext}
           />
         )}
       </main>

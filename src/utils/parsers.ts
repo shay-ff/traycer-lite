@@ -74,13 +74,109 @@ export function parsePlanResponse(response: string): Plan {
  */
 export function parseStepExecutionResponse(response: string): StepExecution {
   try {
-    // Extract JSON from response
-    const jsonMatch = response.match(/\{[\s\S]*\}/);
+    // Extract JSON from response - handle code blocks
+    let jsonString = response;
+    
+    // Remove markdown code block markers if present
+    jsonString = jsonString.replace(/^```(?:json)?\s*/m, '').replace(/\s*```\s*$/m, '');
+    
+    // Find the JSON object boundaries
+    const jsonMatch = jsonString.match(/\{[\s\S]*\}/);
     if (!jsonMatch) {
       throw new ParseError("No JSON object found in response", response);
     }
 
-    const parsed = JSON.parse(jsonMatch[0]);
+    const rawJson = jsonMatch[0];
+    
+    // Try to fix common JSON issues with embedded strings
+    try {
+      // First attempt: direct parsing
+      const parsed = JSON.parse(rawJson);
+      return parseValidatedStepExecution(parsed);
+    } catch {
+      // Second attempt: try to fix malformed diff strings
+      try {
+        const fixedJson = fixMalformedJsonDiff(rawJson);
+        const parsed = JSON.parse(fixedJson);
+        return parseValidatedStepExecution(parsed);
+      } catch {
+        // Third attempt: extract fields manually if JSON is completely broken
+        const manuallyParsed = extractStepExecutionManually(rawJson);
+        return parseValidatedStepExecution(manuallyParsed);
+      }
+    }
+  } catch (error) {
+    if (error instanceof ParseError) {
+      throw error;
+    }
+    throw new ParseError(`Unexpected parsing error: ${error}`, response);
+  }
+}
+
+/**
+ * Fix malformed JSON by properly escaping diff strings
+ */
+function fixMalformedJsonDiff(jsonString: string): string {
+  // Find the diff field and properly escape it
+  const diffPattern = /"diff":\s*"([^"]*(?:\\.[^"]*)*?)"/g;
+  
+  return jsonString.replace(diffPattern, (match, diffContent) => {
+    // Properly escape the diff content
+    const escapedDiff = diffContent
+      .replace(/\\/g, '\\\\')
+      .replace(/"/g, '\\"')
+      .replace(/\n/g, '\\n')
+      .replace(/\r/g, '\\r')
+      .replace(/\t/g, '\\t');
+    
+    return `"diff": "${escapedDiff}"`;
+  });
+}
+
+/**
+ * Manually extract step execution fields when JSON parsing fails
+ */
+function extractStepExecutionManually(jsonString: string): Record<string, unknown> {
+  const result: Record<string, unknown> = {};
+  
+  // Extract step_id
+  const stepIdMatch = jsonString.match(/"step_id":\s*"([^"]+)"/);
+  if (stepIdMatch) {
+    result.step_id = stepIdMatch[1];
+  }
+  
+  // Extract explanation
+  const explanationMatch = jsonString.match(/"explanation":\s*"([^"]*(?:\\.[^"]*)*?)"/);
+  if (explanationMatch) {
+    result.explanation = explanationMatch[1].replace(/\\"/g, '"').replace(/\\n/g, '\n');
+  }
+  
+  // Extract suggested_patch object
+  const patchMatch = jsonString.match(/"suggested_patch":\s*\{([^}]*(?:\{[^}]*\}[^}]*)*)\}/);
+  if (patchMatch) {
+    const patchContent = patchMatch[1];
+    
+    // Extract format
+    const formatMatch = patchContent.match(/"format":\s*"([^"]+)"/);
+    
+    // Extract diff - this is the tricky part due to embedded newlines
+    const diffMatch = jsonString.match(/"diff":\s*"([\s\S]*?)"\s*}/);
+    
+    if (formatMatch && diffMatch) {
+      result.suggested_patch = {
+        format: formatMatch[1],
+        diff: diffMatch[1].replace(/\\n/g, '\n').replace(/\\"/g, '"')
+      };
+    }
+  }
+  
+  return result;
+}
+
+/**
+ * Validate parsed step execution data
+ */
+function parseValidatedStepExecution(parsed: Record<string, unknown>): StepExecution {
 
     // Validate required fields
     if (!parsed.step_id || typeof parsed.step_id !== "string") {
@@ -91,16 +187,18 @@ export function parseStepExecutionResponse(response: string): StepExecution {
       throw new ParseError('Missing or invalid "suggested_patch" object');
     }
 
+    const suggestedPatch = parsed.suggested_patch as Record<string, unknown>;
+
     if (
-      !parsed.suggested_patch.format ||
-      typeof parsed.suggested_patch.format !== "string"
+      !suggestedPatch.format ||
+      typeof suggestedPatch.format !== "string"
     ) {
       throw new ParseError("Missing or invalid patch format");
     }
 
     if (
-      !parsed.suggested_patch.diff ||
-      typeof parsed.suggested_patch.diff !== "string"
+      !suggestedPatch.diff ||
+      typeof suggestedPatch.diff !== "string"
     ) {
       throw new ParseError("Missing or invalid patch diff");
     }
@@ -111,35 +209,25 @@ export function parseStepExecutionResponse(response: string): StepExecution {
 
     // Validate patch format
     const validFormats = ["unified_diff", "full_file"];
-    if (!validFormats.includes(parsed.suggested_patch.format)) {
+    if (!validFormats.includes(suggestedPatch.format)) {
       throw new ParseError(
         `Invalid patch format. Must be one of: ${validFormats.join(", ")}`
       );
     }
 
     const stepExecution: StepExecution = {
-      step_id: parsed.step_id.trim(),
+      step_id: (parsed.step_id as string).trim(),
       suggested_patch: {
-        format: parsed.suggested_patch.format as "unified_diff" | "full_file",
-        diff: parsed.suggested_patch.diff,
+        format: suggestedPatch.format as "unified_diff" | "full_file",
+        diff: suggestedPatch.diff as string,
       },
-      explanation: parsed.explanation.trim(),
+      explanation: (parsed.explanation as string).trim(),
     };
 
     return stepExecution;
-  } catch (error) {
-    if (error instanceof ParseError) {
-      throw error;
-    }
+}
 
-    if (error instanceof SyntaxError) {
-      throw new ParseError(`Invalid JSON format: ${error.message}`, response);
-    }
-
-    throw new ParseError(`Unexpected parsing error: ${error}`, response);
-  }
-} /**
-
+/**
  * Validate a single step object
  */
 function validateStep(step: unknown, index: number): Step {

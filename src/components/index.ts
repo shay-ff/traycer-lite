@@ -11,6 +11,7 @@ export { DiffViewer } from './DiffViewer';
 
 // Export components
 export { ExportPanel } from './ExportPanel';
+export { ReadyFilesPanel } from './ReadyFilesPanel';
 
 // Error handling components
 export { ErrorBoundary, APIErrorBoundary } from './ErrorBoundary';
