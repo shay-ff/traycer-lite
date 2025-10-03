@@ -19,12 +19,16 @@ export const metadata: Metadata = {
   description: "Transform your coding ideas into structured, executable plans. Generate step-by-step implementation guides with AI assistance and review code changes with interactive diffs.",
   keywords: ["coding", "AI", "planning", "implementation", "development", "code generation"],
   authors: [{ name: "Traycer Lite" }],
-  viewport: "width=device-width, initial-scale=1",
   icons: {
     icon: '/favicon.ico',
     shortcut: '/favicon.ico',
     apple: '/favicon.ico',
   },
+};
+
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
 };
 
 export default function RootLayout({

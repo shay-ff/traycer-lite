@@ -155,10 +155,10 @@ export default function Home() {
                   </svg>
                 </div>
                 <h1 className="text-xl font-semibold text-gray-900 hidden sm:block">
-                  Coding Agent Planner
+                  Traycer Lite
                 </h1>
                 <h1 className="text-lg font-semibold text-gray-900 sm:hidden">
-                  Planner
+                  Traycer
                 </h1>
               </div>
 
@@ -230,15 +230,38 @@ export default function Home() {
         {!currentPlan ? (
           /* Plan Generation Interface */
           <div className="space-y-6 sm:space-y-8">
+            {/* Hero Section */}
             <div className="text-center px-4">
               <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4">
                 Create Your Implementation Plan
               </h2>
-              <p className="text-base sm:text-lg text-gray-600 max-w-2xl mx-auto">
-                Provide your code context and describe what you want to
-                implement. The AI will generate a detailed step-by-step plan for
-                you.
+              <p className="text-base sm:text-lg text-gray-600 max-w-2xl mx-auto mb-6">
+                Transform your coding ideas into structured, executable plans with AI assistance.
               </p>
+            </div>
+
+            {/* Quick Start Guide */}
+            <div className="max-w-4xl mx-auto mb-8">
+              <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-6">
+                <h3 className="text-lg font-semibold text-blue-900 mb-4 flex items-center">
+                  <span className="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-bold mr-3">1</span>
+                  How it works
+                </h3>
+                <div className="grid md:grid-cols-3 gap-4 text-sm">
+                  <div className="bg-white rounded-lg p-4 border border-blue-100">
+                    <div className="font-medium text-blue-900 mb-2">📝 Describe</div>
+                    <p className="text-blue-800">Provide your code context and implementation goals</p>
+                  </div>
+                  <div className="bg-white rounded-lg p-4 border border-blue-100">
+                    <div className="font-medium text-blue-900 mb-2">🤖 Generate</div>
+                    <p className="text-blue-800">AI creates a detailed step-by-step plan</p>
+                  </div>
+                  <div className="bg-white rounded-lg p-4 border border-blue-100">
+                    <div className="font-medium text-blue-900 mb-2">⚡ Execute</div>
+                    <p className="text-blue-800">Review, edit, and apply changes with confidence</p>
+                  </div>
+                </div>
+              </div>
             </div>
 
             <div className="max-w-4xl mx-auto">
@@ -249,27 +272,31 @@ export default function Home() {
               />
             </div>
 
-            {/* Tips */}
+            {/* Enhanced Tips Section */}
             <div className="max-w-4xl mx-auto mt-6 sm:mt-8">
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 sm:p-6">
-                <h3 className="text-base sm:text-lg font-medium text-blue-900 mb-3">
-                  💡 Tips for Better Plans:
+              <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 sm:p-6">
+                <h3 className="text-base sm:text-lg font-medium text-amber-900 mb-3 flex items-center">
+                  <span className="mr-2">💡</span>
+                  Tips for Better Plans
                 </h3>
-                <ul className="text-sm sm:text-base text-blue-800 space-y-1 sm:space-y-2">
-                  <li>
-                    • Include relevant existing code, file structures, or
-                    configuration files
-                  </li>
-                  <li>
-                    • Be specific about what you want to implement or change
-                  </li>
-                  <li>
-                    • Mention any constraints, preferences, or requirements
-                  </li>
-                  <li>
-                    • Include error messages or issues you&apos;re trying to solve
-                  </li>
-                </ul>
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div>
+                    <h4 className="font-medium text-amber-900 mb-2">Include Context:</h4>
+                    <ul className="text-sm text-amber-800 space-y-1">
+                      <li>• Existing code and file structures</li>
+                      <li>• Configuration files and dependencies</li>
+                      <li>• Error messages or issues to solve</li>
+                    </ul>
+                  </div>
+                  <div>
+                    <h4 className="font-medium text-amber-900 mb-2">Be Specific:</h4>
+                    <ul className="text-sm text-amber-800 space-y-1">
+                      <li>• Clear implementation goals</li>
+                      <li>• Constraints and preferences</li>
+                      <li>• Expected outcomes or behavior</li>
+                    </ul>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -293,13 +320,35 @@ export default function Home() {
       <footer className="bg-white border-t border-gray-200 mt-12 sm:mt-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
           <div className="text-center">
-            <p className="text-gray-500 text-sm">
-              Coding Agent Planner - AI-powered implementation planning
+            <p className="text-gray-500 text-sm mb-2">
+              Traycer Lite - AI-powered implementation planning
             </p>
-            <div className="mt-2 flex items-center justify-center space-x-4 text-xs text-gray-400">
+            <div className="flex items-center justify-center space-x-4 text-xs text-gray-400 mb-3">
               <span>Powered by Groq</span>
               <span>•</span>
               <span>Built with Next.js</span>
+              <span>•</span>
+              <span>TypeScript</span>
+            </div>
+            <div className="text-xs text-gray-500">
+              Created by{' '}
+              <a 
+                href="https://github.com/shay-ff" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-blue-600 hover:text-blue-800 font-medium transition-colors duration-200"
+              >
+                Shayan
+              </a>
+              {' '}• Open source on{' '}
+              <a 
+                href="https://github.com/shay-ff/traycer-lite" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-blue-600 hover:text-blue-800 font-medium transition-colors duration-200"
+              >
+                GitHub
+              </a>
             </div>
           </div>
         </div>

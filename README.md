@@ -47,8 +47,8 @@ Traycer Lite is an intelligent web application that bridges the gap between conc
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/shay-ff/code-planner.git
-   cd code-planner
+   git clone https://github.com/shay-ff/traycer-lite.git
+   cd traycer-lite
    ```
 
 2. **Install dependencies**
