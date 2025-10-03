@@ -2,6 +2,8 @@
 
 > **Transform high-level coding ideas into actionable, step-by-step implementation plans**
 
+🌐 **[Try it live at traycer-lite.vercel.app](https://traycer-lite.vercel.app/)**
+
 Traycer Lite is an intelligent web application that bridges the gap between conceptual coding tasks and executable implementation. Powered by AI, it generates structured plans, allows interactive editing, and produces reviewable code changes with diffs.
 
 ![Next.js](https://img.shields.io/badge/Next.js-15-black?style=flat&logo=next.js)
@@ -47,8 +49,8 @@ Traycer Lite is an intelligent web application that bridges the gap between conc
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/shay-ff/traycer-lite.git
-   cd traycer-lite
+   git clone https://github.com/shay-ff/code-planner.git
+   cd code-planner
    ```
 
 2. **Install dependencies**
@@ -155,6 +157,35 @@ npm run start    # Start production server
 npm run lint     # Run ESLint
 ```
 
+## 🚀 Deployment
+
+### Deploy to Vercel (Recommended)
+
+1. **Push your code to GitHub**
+   ```bash
+   git add .
+   git commit -m "Initial commit"
+   git push origin main
+   ```
+
+2. **Deploy to Vercel**
+   - Visit [vercel.com](https://vercel.com) and sign in with GitHub
+   - Import your repository
+   - Add environment variables in Vercel dashboard:
+     - `GROQ_API_KEY`
+     - `GROQ_MODEL`
+     - `GROQ_MAX_TOKENS`
+     - `GROQ_TEMPERATURE`
+   - Deploy!
+
+### Other Deployment Options
+
+- **Netlify**: Connect GitHub repo and add environment variables
+- **Railway**: One-click deploy with environment setup
+- **Self-hosted**: Run `npm run build && npm start` on your server
+
+**Note**: Ensure your environment variables are properly configured in your deployment platform.
+
 ### API Endpoints
 
 #### `POST /api/generate-plan`
@@ -257,6 +288,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 **Built with ❤️ using Next.js 15, TypeScript, and AI**
 
-[Demo](https://your-demo-url.com) • [Documentation](./docs/)
+[Live Demo](https://traycer-lite.vercel.app/) • [Documentation](./docs/) • [GitHub](https://github.com/shay-ff/code-planner)
 
 </div>
