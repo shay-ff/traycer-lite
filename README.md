@@ -2,6 +2,8 @@
 
 > **Transform high-level coding ideas into actionable, step-by-step implementation plans**
 
+![Screenshot](./screenshots/proof-of-work.png)
+
 🌐 **[Try it live at traycer-lite.vercel.app](https://traycer-lite.vercel.app/)**
 
 Traycer Lite is an intelligent web application that bridges the gap between conceptual coding tasks and executable implementation. Powered by AI, it generates structured plans, allows interactive editing, and produces reviewable code changes with diffs.

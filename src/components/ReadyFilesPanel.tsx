@@ -254,7 +254,7 @@ export const ReadyFilesPanel: React.FC<ReadyFilesPanelProps> = ({
                   ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <h4 className="text-sm font-medium text-gray-900 mb-2 dark:text-gray-100">Original:</h4>
+                        <h4 className="text-sm font-medium text-black mb-2">Original:</h4>
                         <pre className="bg-red-50 border border-red-200 rounded-lg p-3 text-sm overflow-x-auto max-h-64 dark:bg-red-900/20 dark:border-red-800">
                           <code className={`language-${file.language} dark:text-gray-300`}>
                             {file.originalContent}
@@ -262,7 +262,7 @@ export const ReadyFilesPanel: React.FC<ReadyFilesPanelProps> = ({
                         </pre>
                       </div>
                       <div>
-                        <h4 className="text-sm font-medium text-gray-900 mb-2 dark:text-gray-100">Corrected:</h4>
+                        <h4 className="text-sm font-medium text-black mb-2 ">Corrected:</h4>
                         <pre className="bg-green-50 border border-green-200 rounded-lg p-3 text-sm overflow-x-auto max-h-64 dark:bg-green-900/20 dark:border-green-800">
                           <code className={`language-${file.language} dark:text-gray-300`}>
                             {file.correctedContent}

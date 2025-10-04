@@ -244,8 +244,8 @@ export const ExportPanel: React.FC<ExportPanelProps> = ({
             {/* Preview */}
             {showPreview && (
               <div className="border-t border-gray-200 pt-4 mt-4">
-                <h4 className="text-sm font-medium text-gray-900 mb-2">Preview</h4>
-                <pre className="bg-gray-50 border rounded-lg p-3 text-xs overflow-x-auto max-h-96">
+                <h4 className="text-sm font-medium text-black mb-2">Preview</h4>
+                <pre className="bg-black border rounded-lg p-3 text-xs overflow-x-auto max-h-96">
                   {previewContent}
                 </pre>
               </div>
